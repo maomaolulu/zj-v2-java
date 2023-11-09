@@ -1,0 +1,133 @@
+# Tomcat
+server:
+  # 服务器的HTTP端口，默认为80
+  port: 8084
+  servlet:
+    # 应用的访问路径
+    context-path: /anlian_zj_v2
+  tomcat:
+    # tomcat的URI编码
+    uri-encoding: UTF-8
+    threads:
+      # tomcat最大线程数，默认为200
+      max: 1000
+      # Tomcat启动初始化的线程数，默认值10
+      min-spare: 30
+
+http:
+  port: 8082
+management:
+  server:
+    port: 8080
+    ssl:
+      enabled: false
+
+spring:
+  # 环境 dev|test|prod
+  profiles:
+    active: prod
+  # jackson时间格式化
+  jackson:
+    time-zone: GMT+8
+    date-format: yyyy-MM-dd HH:mm:ss
+  servlet:
+    multipart:
+      max-file-size: 300MB
+      max-request-size: 300MB
+      enabled: true
+  mvc:
+    throw-exception-if-no-handler-found: true
+    static-path-pattern: /static/**
+  resources:
+    add-mappings: false
+  jmx:
+    #enabled: true
+    default-domain: icas3\
+  freemarker:
+    template-loader-path: classpath:/templates
+    cache: false # 开发环境缓存关闭
+    suffix: xml
+    charset: UTF-8
+
+  #邮箱配置
+  mail:
+    #smtp服务主机  qq邮箱则为smtp.qq.com
+    host: smtp.exmail.qq.com
+    #服务协议
+    protocol: smtp
+    # 编码集
+    default-encoding: UTF-8
+    #发送邮件的账户
+    #    username: noreply@yuntian.com
+    username: service2@anliantest.com
+    #授权码
+    #    password: kRTYWpwCeLRnPJrp  Xvf5Ha6KrcDjHRYd  g3enUK2iUsWvDrrT
+    password: g3enUK2iUsWvDrrT
+    test-connection: true
+    port: 465
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          socketFactory:
+            port: 465
+            class: javax.net.ssl.SSLSocketFactory
+            fallback: false
+      anlian: http://39.185.236.201:81
+
+#mybatis
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**/*.xml
+  #实体扫描，多个package用逗号或者分号分隔
+  typeAliasesPackage: may.yuntian.modules.*.entity
+  global-config:
+    #数据库相关配置
+    db-config:
+      #主键类型  AUTO:"数据库ID自增", INPUT:"用户输入ID", ID_WORKER:"全局唯一ID (数字类型唯一ID)", UUID:"全局唯一ID UUID";
+      id-type: AUTO
+      #字段策略 IGNORED:"忽略判断",NOT_NULL:"非 NULL 判断"),NOT_EMPTY:"非空判断"
+      field-strategy: NOT_NULL
+      #驼峰下划线转换
+      column-underline: true
+      #逻辑删除配置
+      logic-delete-value: -1
+      logic-not-delete-value: 0
+    banner: false
+  #原生配置
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+    call-setters-on-nulls: true
+    jdbc-type-for-null: 'null'
+
+yuntian:
+  redis:
+    open: true
+  shiro:
+    redis: true
+  # APP模块，是通过jwt认证的，如果要使用APP模块，则需要修改【加密秘钥】
+  jwt:
+    # 加密秘钥
+    secret: f4e2e52034348f86b67cde581c0f9eb5
+    # token有效时长，7天，单位秒
+    expire: 604800
+    header: token
+
+# 项目相关配置
+anlian:
+  # 文件上传、下载的存储路径
+  path:
+    file-path: /Users/mayong/develop/anlian/
+    prefix:
+      #工艺流程图路径
+      craftProcess: craftProcess/
+      #设备布局测点布置图路径
+      equipment: equipment/
+      download: download/
+      upload: upload/
+    freemarker-path: /usr/local/src/server/anlian_zj/jar/templates  #线上 及 203 安联
+#    freemarker-path: /usr/local/src/server/liangyuan_zj/jar/templates  # 203 量远
+    staticPath: E:/webapps/

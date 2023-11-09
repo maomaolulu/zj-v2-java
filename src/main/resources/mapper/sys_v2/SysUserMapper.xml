@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="may.yuntian.modules.sys_v2.mapper.SysUserMapper">
+
+    <resultMap type="SysUser" id="SysUserResult">
+        <id property="userId" column="user_id"/>
+        <result property="deptId" column="dept_id"/>
+        <result property="userName" column="username"/>
+        <result property="jobNum" column="job_num"/>
+        <result property="subjection" column="subjection"/>
+        <result property="mobile" column="mobile"/>
+        <result property="email" column="email"/>
+        <result property="sex" column="sex"/>
+        <result property="password" column="password"/>
+        <result property="salt" column="salt"/>
+        <result property="status" column="status"/>
+        <result property="createTime" column="create_time"/>
+        <result property="remark" column="remark"/>
+        <association property="dept" column="dept_id" javaType="SysDept" resultMap="deptResult"/>
+        <collection property="roles" javaType="java.util.List" resultMap="RoleResult"/>
+    </resultMap>
+
+    <resultMap id="deptResult" type="SysDept">
+        <id property="deptId" column="dept_id"/>
+        <result property="parentId" column="parent_id"/>
+        <result property="deptName" column="name"/>
+        <result property="ancestors" column="dept_structure"/>
+        <result property="orderNum" column="order_num"/>
+    </resultMap>
+
+    <resultMap id="RoleResult" type="SysRole">
+        <id property="roleId" column="role_id"/>
+        <result property="roleName" column="role_name"/>
+        <result property="roleKey" column="role_key"/>
+        <result property="roleSort" column="role_sort"/>
+        <result property="dataScope" column="data_scope"/>
+        <result property="status" column="role_status"/>
+    </resultMap>
+
+    <sql id="selectUserVo">
+        select u.user_id, u.dept_id, u.job_num,u.subjection,u.username, u.email, u.mobile, u.password,u.salt, u.sex, u.status, u.create_time, u.remark,
+               d.dept_id, d.parent_id, d.dept_structure, d.name, d.order_num,
+               r.role_id, r.role_name, r.role_key, r.role_sort, r.login_type, r.status, r.data_company
+        from sys_user u
+                 left join sys_dept d on u.dept_id = d.dept_id
+                 left join sys_user_role ur on u.user_id = ur.user_id
+                 left join sys_role r on r.role_id = ur.role_id
+    </sql>
+
+    <select id="selectUserList" parameterType="SysUser" resultMap="SysUserResult">
+        select u.user_id, u.dept_id, u.username, u.email,u.job_num, u.mobile,u.subjection, u.sex, u.status,
+        u.create_time, u.remark, d.name
+        from sys_user u
+        left join sys_dept d on u.dept_id = d.dept_id
+        where u.status != '2' and u.type='1'
+        <if test="userId != null and userId != 0">
+            AND u.user_id = #{userId}
+        </if>
+        <if test="userName != null and userName != ''">
+            AND u.username like concat('%', #{userName}, '%')
+        </if>
+        <if test="subjection != null and subjection != ''">
+            AND u.subjection = #{subjection}
+        </if>
+        <if test="mobile != null and mobile != ''">
+            AND u.mobile like concat('%', #{mobile}, '%')
+        </if>
+        <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+            AND date_format(u.create_time,'%y%m%d') &gt;= date_format(#{params.beginTime},'%y%m%d')
+        </if>
+        <if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
+            AND date_format(u.create_time,'%y%m%d') &lt;= date_format(#{params.endTime},'%y%m%d')
+        </if>
+        <if test="deptId != null and deptId != 0">
+            AND (u.dept_id = #{deptId} OR u.dept_id IN ( SELECT t.dept_id FROM sys_dept t WHERE find_in_set(#{deptId},
+            dept_structure) ))
+        </if>
+        <!-- 数据范围过滤 -->
+        ${params.dataScope}
+    </select>
+
+    <select id="selectAllocatedList" parameterType="SysUser" resultMap="SysUserResult">
+        select distinct u.user_id, u.dept_id, u.username, u.email, u.mobile, u.status, u.create_time, d.name
+        from sys_user u
+        left join sys_dept d on u.dept_id = d.dept_id
+        left join sys_user_role ur on u.user_id = ur.user_id
+        left join sys_role r on r.role_id = ur.role_id
+        where u.status = '1' and u.type ='1' and r.role_id = #{roleId}
+        <if test="userName != null and userName != ''">
+            AND u.username like concat('%', #{userName}, '%')
+        </if>
+        <if test="mobile != null and mobile != ''">
+            AND u.mobile like concat('%', #{mobile}, '%')
+        </if>
+        <if test="deptId != null and deptId != 0">
+            AND (u.dept_id = #{deptId} OR u.dept_id IN ( SELECT t.dept_id FROM sys_dept t WHERE find_in_set(#{deptId},
+            dept_structure) ))
+        </if>
+        <!-- 数据范围过滤 -->
+        ${params.dataScope}
+    </select>
+
+    <select id="selectUnallocatedList" parameterType="SysUser" resultMap="SysUserResult">
+        select distinct u.user_id, u.dept_id, u.username, u.email, u.mobile, u.status, u.create_time, d.name
+        from sys_user u
+        left join sys_dept d on u.dept_id = d.dept_id
+        left join sys_user_role ur on u.user_id = ur.user_id
+        left join sys_role r on r.role_id = ur.role_id
+        where u.status = '1' and u.type ='1' and (r.role_id != #{roleId} or r.role_id IS NULL)
+        and u.user_id not in (select u.user_id from sys_user u inner join sys_user_role ur on u.user_id = ur.user_id
+        and ur.role_id = #{roleId})
+        <if test="userName != null and userName != ''">
+            AND u.username like concat('%', #{userName}, '%')
+        </if>
+        <if test="mobile != null and mobile != ''">
+            AND u.mobile like concat('%', #{mobile}, '%')
+        </if>
+        <if test="deptId != null and deptId != 0">
+            AND (u.dept_id = #{deptId} OR u.dept_id IN ( SELECT t.dept_id FROM sys_dept t WHERE find_in_set(#{deptId},
+            dept_structure) ))
+        </if>
+        <!-- 数据范围过滤 -->
+        ${params.dataScope}
+    </select>
+
+    <select id="selectUserByUserName" parameterType="String" resultMap="SysUserResult">
+        <include refid="selectUserVo"/>
+        where u.username = #{userName}
+    </select>
+
+    <select id="selectUserById" parameterType="Long" resultMap="SysUserResult">
+        <include refid="selectUserVo"/>
+        where u.user_id = #{userId}
+    </select>
+
+
+    <select id="selectUserListByDeptId" resultType="SysUser">
+        select u.user_id,u.username
+        from sys_user u
+        where u.status != '2' and u.type='1' and u.dept_id=#{deptId}
+    </select>
+
+    <update id="updateUserStatus" parameterType="SysUser">
+        update sys_user set status = #{status} where user_id = #{userId}
+    </update>
+
+    <select id="selectUserListNoPaging" resultType="SysUser">
+        select u.user_id, u.dept_id, u.username as userName,u.subjection, u.status
+        from sys_user u
+        where u.status != '2' and u.type='1'
+        <if test="userId != null and userId != 0">
+            AND u.user_id = #{userId}
+        </if>
+        <if test="deptId != null and deptId != 0">
+            AND u.dept_id = #{deptId}
+        </if>
+        <if test="userName != null and userName != ''">
+            AND u.username like concat('%', #{userName}, '%')
+        </if>
+        <if test="subjection != null and subjection != ''">
+            AND u.subjection = #{subjection}
+        </if>
+    </select>
+
+</mapper>

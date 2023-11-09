@@ -1,0 +1,9 @@
+package may.yuntian.jianping.mapper;
+
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import may.yuntian.jianping.entity.LawsProjectEntity;
+import org.apache.ibatis.annotations.Mapper;
+
+@Mapper
+public interface LawsProjectMapper extends BaseMapper<LawsProjectEntity> {
+}

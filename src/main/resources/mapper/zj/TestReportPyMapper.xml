@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="may.yuntian.jianping.mapper.TestReportPyMapper">
+
+    <resultMap type="may.yuntian.jianping.entity.ConclusionPyEntity" id="ConclusionResult">
+        <id property="id" column="id"/>
+        <result property="project_id" column="project_id"/>
+        <result property="result_id" column="result_id"/>
+        <result property="record_id" column="record_id"/>
+        <result property="point_id" column="point_id"/>
+        <result property="post_id" column="post_id"/>
+        <result property="test_place" column="test_place"/>
+        <result property="workshop" column="workshop"/>
+        <result property="post" column="post"/>
+        <result property="pfn_id" column="pfn_id"/>
+        <result property="pfn" column="pfn"/>
+        <result property="point_code_num" column="point_code_num"/>
+        <result property="point_code" column="point_code"/>
+        <result property="substance_id" column="substance_id"/>
+        <result property="substance" column="substance"/>
+        <result property="total_dust_id" column="total_dust_id"/>
+        <result property="s_type" column="s_type"/>
+        <result property="test_item" column="test_item"/>
+        <result property="worker_num" column="worker_num"/>
+        <result property="test_result" column="test_result"/>
+        <result property="limit_v" column="limit_v"/>
+        <result property="result" column="result"/>
+        <result property="measures" column="measures"/>
+        <result property="conclusion" column="conclusion"/>
+        <result property="highly_toxic" column="highly_toxic"/>
+        <result property="createtime" column="createtime"/>
+        <result property="updatetime" column="updatetime"/>
+    </resultMap>
+
+    <sql id="selectConclusionVo">
+        SELECT id,
+               project_id,
+               result_id,
+               record_id,
+               point_id,
+               post_id,
+               test_place,
+               workshop,
+               post,
+               pfn_id,
+               pfn,
+               point_code_num,
+               point_code,
+               substance_id,
+               substance,
+               total_dust_id,
+               s_type,
+               test_item,
+               worker_num,
+               test_result,
+               limit_v,
+               result,
+               measures,
+               conclusion,
+               highly_toxic,
+               createtime,
+               updatetime
+        FROM zj_conclusion
+    </sql>
+
+    <update id="updateConclusion">
+        update zj_conclusion
+        <set>
+            <if test="conclusion != null ">conclusion = #{conclusion},</if>
+            <if test="measures != null ">measures = #{measures},</if>
+            updatetime = sysdate()
+        </set>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteConclusions">
+        delete from zj_conclusion where id in
+        <foreach item="id" collection="ids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="getConclusionList" resultMap="ConclusionResult">
+        <include refid="selectConclusionVo"/>
+        <where>
+            <if test="projectId != null">
+                AND project_id =#{projectId}
+            </if>
+        </where>
+    </select>
+
+
+</mapper>

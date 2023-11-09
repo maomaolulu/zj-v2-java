@@ -1,0 +1,76 @@
+spring:
+  data:
+    mongodb:
+#      uri: mongodb://anlian:1GaCKf1oUcQYb3km@47.111.249.220:27017/anlian?mechanism=SCRAM-SHA-1
+      uri: mongodb://anlian:1GaCKf1oUcQYb3km@mongodb-v0yd8z.main-business:27017/anlian?mechanism=SCRAM-SHA-1
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      first:
+        driverClassName: com.mysql.cj.jdbc.Driver
+#        url: jdbc:mysql://47.111.249.220:3306/anlian_v2?useSSL=false&serverTimezone=GMT%2B8&
+#        username: anlian
+#        password: E&ZC^C9kyH4XP!-0
+        url: jdbc:mysql://mysql-f1if4d-headless.main-business:3306/anlian_v2?useSSL=false&serverTimezone=GMT%2B8&
+        username: root
+        password: eQ8MMF5M4c
+      second:
+        enabled: true
+        driverClassName: com.mysql.jdbc.Driver
+        url: jdbc:mysql://47.114.191.58:3306/anliantest_com?useSSL=false&serverTimezone=GMT%2B8&
+        username: anliantest_com
+        password: SChweBAzG5mpGB35
+      initial-size: 5
+      max-active: 30
+      min-idle: 3
+      max-wait: 120000
+      pool-prepared-statements: false
+      max-pool-prepared-statement-per-connection-size: 20
+      time-between-eviction-runs-millis: 120000
+      min-evictable-idle-time-millis: 300000
+      #validation-query: SELECT 1 FROM DUAL
+      test-while-idle: true
+      test-on-borrow: false
+      test-on-return: false
+      stat-view-servlet:
+        enabled: true
+        url-pattern: /druid/*
+      filter:
+        stat:
+          log-slow-sql: true
+          slow-sql-millis: 1000
+          merge-sql: false
+        wall:
+          config:
+            multi-statement-allow: true
+  devtools:
+    add-properties: false
+  # redis 缓存
+  redis:
+    # 是否开启redis缓存  true开启   false关闭
+    open: true
+    database: 0
+    host: redis-vqtfg5-master.main-business
+    port: 6379
+    password: ldlJRxthNeabA3Fd
+#    host: 47.111.249.220
+#    port: 6379
+#    password: ldlJRxthNeabA3Fd
+    timeout: 6000ms
+    jedis:
+      pool:
+        max-active: 1000
+        max-wait: -1ms
+        max-idle: 10
+        min-idle: 5
+minio:
+  #线上
+  accessKey: admin
+  secretKey: 8hx71XplD5Fe
+  bucketName: anlian-java
+  endpoint: http://minio-hvidhd.main-business:9000
+  #线上
+#  accessKey: admin
+#  secretKey: 8hx71XplD5Fe
+#  bucketName: anlian-java
+#  endpoint: http://39.185.236.201:31951

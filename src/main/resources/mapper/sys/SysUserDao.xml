@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="may.yuntian.modules.sys.dao.SysUserDao">
+	<!-- 二级缓存 时长5分钟 -->
+	<cache flushInterval="300000"/>
+	
+	<!-- 查询用户的所有权限 -->
+	<select id="queryAllPerms" resultType="string">
+		select m.perms from sys_user_role ur 
+			LEFT JOIN sys_role_menu rm on ur.role_id = rm.role_id 
+			LEFT JOIN sys_menu m on rm.menu_id = m.menu_id 
+		where ur.user_id = #{userId}
+	</select>
+	
+	<!-- 查询用户的所有菜单ID --> 
+	<select id="queryAllMenuId" resultType="long">
+		select distinct rm.menu_id from sys_user_role ur 
+			LEFT JOIN sys_role_menu rm on ur.role_id = rm.role_id 
+		where ur.user_id = #{userId}
+	</select>
+	
+	<select id="queryByUserName" resultType="may.yuntian.modules.sys.entity.SysUserEntity">
+		select * from sys_user where username = #{username}
+	</select>
+	
+	<select id="queryByEmail" resultType="may.yuntian.modules.sys.entity.SysUserEntity">
+		select * from sys_user where email = #{email} LIMIT 1
+	</select>
+	
+	<select id="queryByUserId" resultType="may.yuntian.modules.sys.entity.SysUserEntity">
+		select * from sys_user where user_id = #{userId}
+	</select>
+	
+	<!-- 根据用户ID，更新用户失败的次数与状态 -->
+	<update id="updateUserDefeats" parameterType="may.yuntian.modules.sys.entity.SysUserEntity" >
+		update sys_user set defeats=defeats+1 
+			<if test="status != null">
+                 , status=#{status}
+           	</if>	
+             where user_id = #{userId}
+	</update>
+	
+	<!-- 修改用户连续登录失败的次数为0 登录成功时调用 -->
+	<update id="updateUserDefeats0" parameterType="long" >
+		update sys_user set defeats=0 where user_id = #{userId}
+	</update>
+
+</mapper>
